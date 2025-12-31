@@ -2178,3 +2178,33 @@ register_activation_hook(__FILE__, function() {
     dbDelta($sql2);
     dbDelta($sql3);
 });
+
+// AJAX handler pre dismiss widgetu (CLIENT SIDE)
+add_action('wp_ajax_arte_dismiss_widget', 'arte_dismiss_widget_handler');
+function arte_dismiss_widget_handler() {
+    check_ajax_referer('arte_widget_dismiss', 'nonce');
+    
+    $user_id = get_current_user_id();
+    if (!$user_id) wp_send_json_error();
+    
+    $domain = $_SERVER['HTTP_HOST'] ?? 'unknown';
+    $meta_key = 'arte_dismissed_widget_' . md5($domain);
+    
+    update_user_meta($user_id, $meta_key, time());
+    wp_send_json_success();
+}
+
+// AJAX handler pre "zobraziť znovu" (CLIENT SIDE)
+add_action('wp_ajax_arte_undismiss_widget', 'arte_undismiss_widget_handler');
+function arte_undismiss_widget_handler() {
+    check_ajax_referer('arte_widget_dismiss', 'nonce');
+    
+    $user_id = get_current_user_id();
+    if (!$user_id) wp_send_json_error();
+    
+    $domain = $_SERVER['HTTP_HOST'] ?? 'unknown';
+    $meta_key = 'arte_dismissed_widget_' . md5($domain);
+    
+    delete_user_meta($user_id, $meta_key);
+    wp_send_json_success();
+}
